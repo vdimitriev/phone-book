@@ -80,6 +80,7 @@ class PhoneService(
                     phoneModel.history = history
                     if(!phoneModel.available && history.isNotEmpty()) {
                         phoneModel.booker = history[0].booker
+                        phoneModel.bookingDate = history[0].date
                     }
                     outputMessage.phones.add(phoneModel)
                 }

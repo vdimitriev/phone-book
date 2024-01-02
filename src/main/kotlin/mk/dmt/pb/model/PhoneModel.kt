@@ -1,9 +1,7 @@
 package mk.dmt.pb.model
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonTypeName
+import com.fasterxml.jackson.annotation.*
+import java.time.OffsetDateTime
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 @JsonTypeName("phone")
@@ -24,6 +22,10 @@ data class PhoneModel (
 
     @JsonProperty("booker")
     var booker: BookerModel? = null,
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+    @JsonProperty("bookingDate")
+    var bookingDate: OffsetDateTime? = null,
 
     @JsonProperty("history")
     var history: List<HistoryModel> = mutableListOf()
