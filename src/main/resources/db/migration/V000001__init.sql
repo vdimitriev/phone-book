@@ -1,35 +1,35 @@
-create table booker
+create table if not exists booker
 (
     id                              bigserial    not null primary key,
     booker_id                       text         not null unique,
     name                            text
 );
 
-create table phone
+create table if not exists phone
 (
     id                              bigserial    not null primary key,
     phone_id                        text         not null,
-    booker_id                       bigserial    unique,
+    unit_id                         int,
     make                            text,
     model                           text,
     name                            text         not null,
-    date_of_booking                 timestamp,
     available                       boolean,
-    quantity                        numeric(2,0),
-    constraint fk_phone_booker_id foreign key (booker_id) references booker(id)
+    unique (phone_id, unit_id)
 );
 
-create table event
+create table if not exists event
 (
     id                              bigserial    not null primary key,
     event_id                        text         not null unique,
-    phone_id                        bigserial    not null unique,
+    phone_id                        bigserial    not null,
+    booker_id                       bigint,
     created                         timestamp,
     type                            text,
-    constraint fk_event_phone_id foreign key (phone_id) references phone(id)
+    constraint fk_event_phone_id foreign key (phone_id) references phone(id),
+    constraint fk_event_booker_id foreign key (booker_id) references booker(id)
 );
 
-create
-    index concurrently if not exists phone_name_index
-    on phone(name);
+create index if not exists phone_name_idx on phone(name);
+create index if not exists phone_phone_id_idx on phone(phone_id);
+create index if not exists booker_booker_id_idx on booker(booker_id);
 

@@ -12,13 +12,13 @@ import jakarta.persistence.Table
 data class BookerEntity(
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    var id: Long = -1,
+    var id: Long? = null,
 
     @Column(name = "booker_id")
-    var bookerId: String = "",
+    var bookerId: String? = null,
 
     @Column(name = "name")
-    var name: String = "",
+    var name: String? = null,
 )

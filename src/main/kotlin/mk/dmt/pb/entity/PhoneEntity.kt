@@ -1,28 +1,27 @@
 package mk.dmt.pb.entity
 
 import jakarta.persistence.*
+import org.hibernate.annotations.Cascade
+import org.hibernate.annotations.CascadeType
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
+import java.time.LocalDate
+import java.time.OffsetDateTime
 
 @Entity
 @Table(name = "phone")
 data class PhoneEntity(
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    var id: Long = -1,
+    var id: Long? = null,
 
     @Column(name = "phone_id")
-    var phoneId: String = "",
+    var phoneId: String? = null,
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = true)
-    @JoinColumn(name = "booker_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.NO_ACTION)
-    var booker: BookerEntity? = null,
-
-    @OneToMany(mappedBy="phone")
-    var history: Set<EventEntity> = mutableSetOf(),
+    @Column(name = "unit_id")
+    var unitId: Int? = null,
 
     @Column(name = "make")
     var make: String? = null,
@@ -33,13 +32,7 @@ data class PhoneEntity(
     @Column(name = "name")
     var name: String? = null,
 
-    @Column(name = "date_of_booking")
-    var dateOfBooking: String? = null,
-
     @Column(name = "available")
-    var available: Boolean = true,
+    var available: Boolean = true
 
-    @Column(name = "quantity")
-    var quantity: Int = -1,
-
-    )
+)
