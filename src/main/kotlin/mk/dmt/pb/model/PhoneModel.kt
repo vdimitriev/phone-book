@@ -19,6 +19,9 @@ data class PhoneModel (
     @JsonProperty("available")
     var available: Boolean = true,
 
+    @JsonProperty("deviceInfo")
+    var deviceInfo: DeviceInfoModel? = null,
+
     @JsonProperty("booker")
     var booker: BookerModel? = null,
 

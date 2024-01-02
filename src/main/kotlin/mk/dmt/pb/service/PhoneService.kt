@@ -1,32 +1,17 @@
 package mk.dmt.pb.service
 
 
-import kotlinx.coroutines.cancel
-import mk.dmt.pb.entity.BookerEntity
-import mk.dmt.pb.entity.EventEntity
-import mk.dmt.pb.entity.EventType
-import mk.dmt.pb.entity.PhoneEntity
-import mk.dmt.pb.exception.AvailablePhoneNotFoundException
+import mk.dmt.pb.entity.*
 import mk.dmt.pb.exception.BookerNotFoundException
 import mk.dmt.pb.exception.PhoneNotFoundException
 import mk.dmt.pb.fonoapi.*
 import mk.dmt.pb.http.HttpService
-import mk.dmt.pb.model.BookerModel
-import mk.dmt.pb.model.HistoryModel
-import mk.dmt.pb.model.OutputMessage
-import mk.dmt.pb.model.PhoneModel
+import mk.dmt.pb.model.*
 import mk.dmt.pb.repository.BookerRepository
 import mk.dmt.pb.repository.EventRepository
 import mk.dmt.pb.repository.PhoneRepository
-//import okhttp3.OkHttpClient
-//import okhttp3.logging.HttpLoggingInterceptor
-//import okhttp3.logging.HttpLoggingInterceptor.Level
-import org.springframework.data.jpa.domain.AbstractPersistable_.id
-import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.reactive.function.client.WebClient
-import reactor.core.publisher.Mono
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -44,7 +29,7 @@ class PhoneService(
         val phoneOpt = phoneRepository.findAvailablePhoneByPhoneId(phoneId)
         val bookerOpt = bookerRepository.findByBookerId(bookerId)
         when {
-            phoneOpt.isEmpty -> throw AvailablePhoneNotFoundException(phoneId)
+            phoneOpt.isEmpty -> throw PhoneNotFoundException(phoneId)
             bookerOpt.isEmpty -> throw BookerNotFoundException(bookerId)
             else -> makeBooking(phoneOpt.get(), bookerOpt.get())
         }
@@ -71,6 +56,7 @@ class PhoneService(
         phoneRepository.save(phoneEntity)
     }
 
+    @Transactional
     fun findPhone(phoneId: String): OutputMessage {
         val phones = phoneRepository.findByPhoneId(phoneId)
         when {
@@ -78,11 +64,12 @@ class PhoneService(
             else -> {
                 val outputMessage = OutputMessage(phoneId = phoneId)
                 phones.forEach { phoneEntity: PhoneEntity ->
+                    val dim: DeviceInfoModel? = findAndStoreDeviceInfo(phoneEntity)
                     val phoneModel = PhoneModel()
                     phoneModel.phoneId = phoneEntity.phoneId!!
                     phoneModel.name = phoneEntity.name!!
                     phoneModel.available = phoneEntity.available
-                    phoneModel.booker = null
+                    phoneModel.deviceInfo = dim
                     val history:List<HistoryModel> = eventRepository.findBookingEventsByPhoneId(phoneId)
                         .map {
                             val booker = it.booker!!
@@ -91,10 +78,40 @@ class PhoneService(
                                 it.created
                             ) }
                     phoneModel.history = history
+                    if(!phoneModel.available && history.isNotEmpty()) {
+                        phoneModel.booker = history[0].booker
+                    }
                     outputMessage.phones.add(phoneModel)
                 }
                 return outputMessage
             }
         }
+    }
+
+    private fun findAndStoreDeviceInfo(phoneEntity: PhoneEntity): DeviceInfoModel? {
+        return when {
+            phoneEntity.deviceInfo != null -> {
+                val die:DeviceInfoEntity = phoneEntity.deviceInfo!!
+                DeviceInfoModel(die.deviceName!!, die.technology!!, die.bands2g!!, die.bands3g!!, die.bands4g!!)
+            }
+            else -> {
+                val deviceEntity: DeviceEntity? = httpService.fonoApiCall(URL_BASE, TOKEN, phoneEntity.brand!!, phoneEntity.model!!)
+                if(deviceEntity != null) {
+                    val die = DeviceInfoEntity(id = null,
+                        deviceInfoId = UUID.randomUUID().toString(),
+                        deviceName = deviceEntity.deviceName,
+                        technology = deviceEntity.technology,
+                        bands2g = deviceEntity._2g_bands,
+                        bands3g = deviceEntity._3g_bands,
+                        bands4g = deviceEntity._4g_bands);
+                    phoneEntity.deviceInfo = die
+                    phoneRepository.save(phoneEntity)
+                    DeviceInfoModel(die.deviceName!!, die.technology!!, die.bands2g!!, die.bands3g!!, die.bands4g!!)
+                } else {
+                    null
+                }
+            }
+        }
+
     }
 }

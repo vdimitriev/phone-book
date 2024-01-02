@@ -3,10 +3,6 @@ package mk.dmt.pb.entity
 import jakarta.persistence.*
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
-import org.hibernate.annotations.OnDelete
-import org.hibernate.annotations.OnDeleteAction
-import java.time.LocalDate
-import java.time.OffsetDateTime
 
 @Entity
 @Table(name = "phone")
@@ -20,11 +16,16 @@ data class PhoneEntity(
     @Column(name = "phone_id")
     var phoneId: String? = null,
 
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "device_info_id", nullable = false)
+    @Cascade(CascadeType.ALL)
+    var deviceInfo: DeviceInfoEntity? = null,
+
     @Column(name = "unit_id")
     var unitId: Int? = null,
 
-    @Column(name = "make")
-    var make: String? = null,
+    @Column(name = "brand")
+    var brand: String? = null,
 
     @Column(name = "model")
     var model: String? = null,

@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface EventRepository:JpaRepository<EventEntity, Long> {
 
-    @Query("SELECT event FROM EventEntity event WHERE event.type = 'BOOK' AND event.phone.phoneId = :phoneId")
+    @Query("SELECT event FROM EventEntity event WHERE event.type = 'BOOK' AND event.phone.phoneId = :phoneId ORDER BY event.created desc")
     fun findBookingEventsByPhoneId(@Param("phoneId") phoneId: String): Collection<EventEntity>
 }

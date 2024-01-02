@@ -34,15 +34,6 @@ class PhoneController(val phoneService: PhoneService) {
     @ResponseStatus(HttpStatus.OK)
     fun phoneInfo(@PathVariable @NotBlank phoneId: String): ResponseEntity<OutputMessage> {
         val phone:OutputMessage = phoneService.findPhone(phoneId)
-        println(phone)
-
-        val mapper = ObjectMapper()
-        mapper.registerKotlinModule()
-        mapper.findAndRegisterModules();
-
-        val phoneString = mapper.writeValueAsString(phone)
-        println(phoneString)
-
         return ResponseEntity<OutputMessage>(phone, HttpStatus.OK)
     }
 

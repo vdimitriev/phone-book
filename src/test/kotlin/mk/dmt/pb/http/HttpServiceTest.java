@@ -6,16 +6,24 @@ import mk.dmt.pb.fonoapi.DeviceEntity;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
-import static mk.dmt.pb.fonoapi.ConstantsKt.URL_BASE;
-
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test-h2database")
 public class HttpServiceTest {
 
+    @Autowired
+    private HttpService httpService;
+
     public static MockWebServer mockBackEnd;
+
+    @Autowired
+    public TestRestTemplate restTemplate;
 
     @BeforeAll
     static void setUp() throws IOException {
@@ -28,41 +36,19 @@ public class HttpServiceTest {
         mockBackEnd.shutdown();
     }
 
-//    @BeforeEach
-//    void initialize() {
-//        //String baseUrl = String.format("http://localhost:%s", mockBackEnd.getPort());
-//        //employeeService = new EmployeeService(baseUrl);
-//    }
-
-//    @Test
-//    void test() throws JsonProcessingException {
-//        final ObjectMapper objectMapper = new ObjectMapper();
-//        objectMapper.findAndRegisterModules();
-//        final DeviceEntity[] deviceEntities = {
-//            new DeviceEntity("Galaxy S9", "Samsung", "Technology", "2G", "3G", "4G")
-//        };
-//        String jsonArray = objectMapper.writeValueAsString(deviceEntities);
-//        mockBackEnd.enqueue(new MockResponse()
-//                .setBody(jsonArray)
-//                .addHeader("Content-Type", "application/json"));
-//        final HttpService httpService = new HttpService();
-//        final String deviceUrl = "getdevice?token=$token&brand=$brand&device=$device";
-//        final String token = "";
-//        final String brand = "";
-//        final String device = "";
-//
-//        String baseUrl = String.format("http://localhost:%s", mockBackEnd.getPort());
-//        final String url = "https://fonoapi.freshpixl.com/v1/getdevice?token=token&brand=samsung&device=s9";
-//        DeviceEntity deviceEntity = httpService.restCall(baseUrl, token, brand, device);
-//
-//        Assertions.assertNotNull(deviceEntity);
-//        System.out.println(deviceEntity);
-//
-////        Mono<Employee> employeeMono = employeeService.getEmployeeById(100);
-////        StepVerifier.create(employeeMono)
-////                .expectNextMatches(employee -> employee.getRole()
-////                        .equals(Role.LEAD_ENGINEER))
-////                .verifyComplete();
-//    }
-
+    @Test
+    void testFonoApiDeviceInfo() throws JsonProcessingException {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.findAndRegisterModules();
+        final DeviceEntity deviceEntity = new DeviceEntity("Galaxy S9", "Samsung", "Technology", "2G", "3G", "4G");
+        final DeviceEntity[] deviceEntities = { deviceEntity };
+        String jsonArray = objectMapper.writeValueAsString(deviceEntities);
+        mockBackEnd.enqueue(new MockResponse()
+                .setBody(jsonArray)
+                .addHeader("Content-Type", "application/json"));
+        String baseUrl = String.format("http://localhost:%s", mockBackEnd.getPort());
+        DeviceEntity resultDevice = httpService.fonoApiCall(baseUrl, "", "Samsung", "Galaxy S9");
+        Assertions.assertNotNull(resultDevice);
+        Assertions.assertEquals(deviceEntity, resultDevice);
+    }
 }

@@ -21,8 +21,8 @@ class ApiExceptionHandler(
     ) {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(AvailablePhoneNotFoundException::class)
-    fun handlePhoneNotFoundException(exception: AvailablePhoneNotFoundException): ResponseEntity<Any> {
+    @ExceptionHandler(PhoneNotFoundException::class)
+    fun handlePhoneNotFoundException(exception: PhoneNotFoundException): ResponseEntity<Any> {
         logger.warn(exception) { exception.message }
         return returnResponseEntity(HttpStatus.NOT_FOUND, exception.message)
     }
@@ -40,12 +40,6 @@ class ApiExceptionHandler(
         val message = "Unexpected exception caught with message: ${exception.message}"
         logger.error(exception) { message }
         return returnResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, message)
-    }
-
-    @ExceptionHandler(CallNotPermittedException::class)
-    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-    fun handle(exception: CallNotPermittedException) {
-        logger.error(exception) { "Circuit breaker error" }
     }
 
     private fun returnResponseEntity(httpStatus: HttpStatus, message: String?): ResponseEntity<Any> =

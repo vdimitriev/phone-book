@@ -21,7 +21,7 @@ import java.util.Optional;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles("test-container-flyway")
 @Testcontainers
-public class PhoneRepositoryTest {
+public class PhoneRepositoryPostgresTest {
 
     @Autowired
     private PhoneRepository phoneRepository;
