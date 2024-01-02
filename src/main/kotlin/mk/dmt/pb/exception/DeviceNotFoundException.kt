@@ -1,7 +1,9 @@
 package mk.dmt.pb.exception
 
 class DeviceNotFoundException(
-    override val message: String = "No device was found. when calling the api",
+    val device: String,
+    val brand: String,
+    override val message: String = "No device $device was found for brand $brand.",
 ) :RuntimeException(
     message,
 )
