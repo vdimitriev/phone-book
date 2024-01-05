@@ -34,3 +34,26 @@ for the same model.
 - After that run from terminal 
 
 > mvn spring-boot:run
+
+
+## How the application works
+
+Right now the application works in a way that mobile phones and users (testers) are created in advance in the db, 
+and the tester needs to insert his uuid and an id of the phone to make a booking or to return the phone. 
+
+To get the info about the phone, when the call to /api/v1/phone/{phoneId} is done, the application retrieves the data 
+about the phone from the db. If the information about the phone technology and bands is missing it will try to call 
+fonoapi service. There is retry, circuit braker and time limiter defined when calling fonoapi so if the service is not 
+available (which is currently the case), it will stop trying calling it. 
+
+## TODO
+### What next needs to be done
+
+1. User authentication
+2. Swagger definitions of api
+3. More unit tests
+4. Caching, for the phone info this will be very good addition as it will reduce calls to database and fonapi
+5. Make the application reactive 
+    - Use Mono to return data about phone info
+    - Use coroutines and async-await pattern to call fonoapi service
+    - Use reactive repository to fetch and store data in database. 
