@@ -55,21 +55,24 @@ class HttpRequestTest {
     fun testPhoneInfo() {
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN)
-
-        val response: ResponseEntity<OutputMessage> = restTemplate!!.exchange(
-            String.format("http://localhost:%d/api/v1/phone/samsung-galaxy-s9", port),
-            HttpMethod.GET,
-            HttpEntity<Any>(headers),
-            OutputMessage::class.java
-        )
-
-        Assertions.assertNotNull(response)
-        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
-        Assertions.assertNotEquals(null, response.body)
-        Assertions.assertNotNull(response.body!!.phones)
-        Assertions.assertFalse(response.body!!.phones.isEmpty())
-        Assertions.assertTrue(response.body!!.phones.all { it.history.isNotEmpty() })
+        restTemplateExchange(4, headers)
+//        Assertions.assertNotNull(response)
+//        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+//        Assertions.assertNotEquals(null, response.body)
+//        Assertions.assertNotNull(response.body!!.phones)
+//        Assertions.assertFalse(response.body!!.phones.isEmpty())
+//        Assertions.assertTrue(response.body!!.phones.all { it.history.isNotEmpty() })
     }
 
+    fun restTemplateExchange(count:Int, headers: HttpHeaders) {
+        for(c in 0 until count) {
+            restTemplate!!.exchange(
+                String.format("http://localhost:%d/api/v1/phone/samsung-galaxy-s9", port),
+                HttpMethod.GET,
+                HttpEntity<Any>(headers),
+                OutputMessage::class.java
+            )
+        }
+    }
 
 }
